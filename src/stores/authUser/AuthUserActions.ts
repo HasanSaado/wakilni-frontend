@@ -25,8 +25,8 @@ export function loginUser(fields: any) {
         user: result,
       });
 
-      if (!isEmpty(result.token)) {
-        localStorage.setItem("token", JSON.stringify(result.token));
+      if (!isEmpty(result?.authorization?.token)) {
+        localStorage.setItem("token", JSON.stringify(result?.authorization?.token));
       }
 
       return result;
@@ -49,9 +49,10 @@ export function registerUser(fields: object) {
       dispatch({
         type: REGISTER_USER_SUCCESS,
       });
-      if (!isEmpty(result?.token)) {
-        localStorage.setItem("token", JSON.stringify(result?.token));
+      if (!isEmpty(result?.authorization?.token)) {
+        localStorage.setItem("token", JSON.stringify(result?.authorization?.token));
       }
+      console.log('result: ', result);
       return result;
     } catch(error: any) {
       console.log('Register user Error: ', error);

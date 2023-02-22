@@ -84,7 +84,6 @@ export const apiCall = async (
 		return result;
 
 	} catch (error: any) {
-
 		// Api call aborted
 		if (error.name === 'AbortError') {
 			throw 'Aborted api call';
@@ -158,24 +157,25 @@ const handleApiResponse = async (apiName: any, response: any) => {
 
 	// Handle response by status
 	const status: any = response.status;
-	switch (response.status) {
-		case 200: {
+	switch (true) {
+		case status == 200: {
 			return await handleSuccessfulApiResponse(apiName, response);
 		}
-		case 201: {
+		case status == 201: {
 			console.log(`Successful ${apiName} empty result`);
 			return 'success';
 		}
 
 		// Conflict error code
 		case 400 <= status && status <= 500: {
-			let failedResponse = await response.json();
+			let failedResponse: any = await response.json();
+			// throw new Error(failedResponse.message.text());
 			return failedResponse;
 		}
 		default: {
 			let textResponse = await response.text();
 			console.log('textResponse: ', textResponse);
-			return false;
+			return textResponse;
 		}
 	}
 }

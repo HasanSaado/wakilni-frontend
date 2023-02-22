@@ -1,8 +1,10 @@
 // Libraries
 import React, { useState, useEffect } from 'react';
 import { isEmpty } from 'lodash';
+import { useNavigate, Link } from 'react-router-dom';
+
+// Hooks
 import { useAppDispatch } from 'stores/hooks';
-import { useNavigate } from 'react-router-dom';
 
 // Components
 import { Form, Button } from "react-bootstrap";
@@ -33,10 +35,10 @@ export default function LoginPage() {
     }))
       .then(async (res: any) => {
         console.log('res: ', res);
-        if (res.error) {
+        if (res.status === 'error') {
 
           await new Promise(f => setTimeout(f, 1000));
-          toast.error(res.error)
+          toast.error(res.message);
           return;
         }
         history('/');
@@ -77,6 +79,7 @@ export default function LoginPage() {
         >
           Submit
         </Button>
+        <p className="mt-3">Don't have an account? <Link to="/register">Sign Up</Link></p>
       </Form>
     </div>
   );

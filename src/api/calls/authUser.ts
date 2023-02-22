@@ -5,7 +5,6 @@ const endpoints = {
 };
 
 async function loginUser(fields: any) {
-  console.log('fields: ', fields);
   return apiCall('loginUser', 'POST', `${endpoints.authUser}/login`, fields);
 }
 

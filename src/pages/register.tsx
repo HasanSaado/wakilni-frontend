@@ -2,19 +2,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, Route } from 'react-router-dom';
 
+// Hooks
+import { useAppDispatch } from 'stores/hooks';
+
 // Components
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import toast, { Toaster } from "react-hot-toast";
 
-// Style
-import './RegisterPage.scss';
+// Actions
+import { registerUser } from 'stores/authUser/AuthUserActions';
 
 export default function RegisterPage() {
+
+  // const
   const history = useNavigate();
+  const dispatch = useAppDispatch();
+
   // State
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
   useEffect(() => {
@@ -23,76 +30,58 @@ export default function RegisterPage() {
     }
   }, [])
 
-  /**
-   *
-   */
   const validateForm = async () => {
-    return email.length > 0 && password.length > 0;
+    return username.length > 0 && password.length > 0;
   }
 
-  /**
-   * 
-   */
+  const validatePassword = () => {
+    if (password === passwordConfirmation) {
+      return true;
+    }
+    return false;
+  }
+
   const handleSubmit = async (event: any) => {
     event.preventDefault();
 
-    const response = await fetch('http://localhost:4000/api/signup', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				name: name,
-				email: email,
-				password: password,
-			}),
-		})
+    if (!validatePassword()) {
+      await new Promise(f => setTimeout(f, 1000));
+      toast.error('Your password does not match!');
+      return;
+    }
 
-		const data = await response.json()
+    await dispatch(registerUser({
+      username: username,
+      password: password
+    }))
+      .then(async (res: any) => {
+        console.log('res: ', res);
+        if (res.status === 'error') {
 
-		if (data.status === 'ok') {
-			history('/')
-		}
+          await new Promise(f => setTimeout(f, 1000));
+          toast.error(res.message);
+          return;
+        }
+        history('/');
+      });
   }
 
-  /**
-   *
-   */
   return (
-    <div className="container login-form">
-      <div className="py-5">
-        <img
-          src="/assets/images/library-logo.jpg"
-          className="login-logo"
-          alt="logo"
-        />
-      </div>
+    <div className="app container login-form d-flex align-items-center">
+      <> <Toaster /></>
       <Form
         onSubmit={handleSubmit}
-        className="w-50"
+        className="w-sm-100 w-md-50 m-auto"
       >
         <Form.Group className="mb-3" controlId="email">
-          <Form.Label>Name</Form.Label>
+          <Form.Label>Username</Form.Label>
           <Form.Control
             required
             type="text"
             placeholder="Enter name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Email address</Form.Label>
-          <Form.Control
-            required
-            type="email"
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Form.Text className="text-muted">
-            We'll never share your email with anyone else.
-          </Form.Text>
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="password">
@@ -124,8 +113,8 @@ export default function RegisterPage() {
         >
           Submit
         </Button>
+        <p className="mt-3">Already have an account? <Link to="/">Sign In</Link></p>
       </Form>
-      <p className="mt-3">Already have an account? <Link to="/">Sign In</Link></p>
     </div>
   );
 }
